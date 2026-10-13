@@ -1,5 +1,25 @@
 # Completed Stories
 
+## Story: Preserve raw Block Kit text during sanitization ✅
+
+Description: Sanitizing a shallow-copied block previously overwrote the caller's
+nested text dictionary, destroying the original text used for comparison.
+
+Acceptance criteria:
+- ✅ Sanitized header and section output still removes control characters.
+- ✅ The original response, including nested text objects, remains unchanged.
+- ✅ A regression fails on the original implementation and passes with the fix.
+
+Implementation:
+- `src/utils/sanitize.py::sanitize_block_kit_response` copies a block's nested
+  text dictionary before replacing its text. Other sanitization rules are unchanged.
+- `tests/unit/test_sanitize.py` compares the complete input with a saved copy and
+  checks cleaned output and distinct nested text objects for headers and sections.
+
+Benefits/Result:
+- Raw input remains available for debugging and comparison with rendered output.
+- The focused sanitizer suite passes locally; no Slack or model calls are required.
+
 ## Story 1: Slack bot skeleton ✅
 Description: Create a minimal Slack Bolt AsyncApp mounted in FastAPI that responds to app_mention and slash command.
 

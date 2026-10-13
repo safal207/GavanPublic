@@ -106,7 +106,10 @@ def sanitize_block_kit_response(response_data: dict[str, Any]) -> dict[str, Any]
         # Sanitize text in different block types
         if "text" in block_copy and isinstance(block_copy["text"], dict):
             if "text" in block_copy["text"]:
-                block_copy["text"]["text"] = sanitize_text(block_copy["text"]["text"])
+                block_copy["text"] = {
+                    **block_copy["text"],
+                    "text": sanitize_text(block_copy["text"]["text"]),
+                }
 
         if "fields" in block_copy and isinstance(block_copy["fields"], list):
             # Limit number of fields

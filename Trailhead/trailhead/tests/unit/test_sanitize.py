@@ -1,5 +1,7 @@
 """Tests for sanitization utilities."""
 
+from copy import deepcopy
+
 from src.utils.sanitize import (
     clamp_text_length,
     remove_unsafe_markdown,
@@ -137,3 +139,22 @@ def test_sanitize_block_kit_response_limits_fields():
 
     # Should be clamped to MAX_FIELDS (10)
     assert len(result["blocks"][0]["fields"]) <= 10
+
+
+def test_sanitize_block_kit_response_preserves_original_nested_text():
+    """Rendering sanitized output must not overwrite the raw input evidence."""
+    response = {
+        "blocks": [
+            {"type": "header", "text": {"type": "plain_text", "text": "Raw\x00Header"}},
+            {"type": "section", "text": {"type": "mrkdwn", "text": "Raw\x00Body"}},
+        ]
+    }
+    original = deepcopy(response)
+
+    result = sanitize_block_kit_response(response)
+
+    assert result["blocks"][0]["text"]["text"] == "RawHeader"
+    assert result["blocks"][1]["text"]["text"] == "RawBody"
+    assert response == original
+    assert result["blocks"][0]["text"] is not response["blocks"][0]["text"]
+    assert result["blocks"][1]["text"] is not response["blocks"][1]["text"]
